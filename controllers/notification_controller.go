@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/idugan100/fitness_server_330/database"
+	"github.com/idugan100/fitness_server_330/models"
 )
 
 type NotificationController struct {
@@ -60,7 +62,14 @@ func (n NotificationController) DeleteNotification(w http.ResponseWriter, r *htt
 }
 
 func (n NotificationController) CreateNotification(w http.ResponseWriter, r *http.Request) {
-	//get message from form or path
-	//insert notification for each user
-	w.Write([]byte("notification created and sent to each user"))
+	var notification models.Notification
+	jsonstring, _ := io.ReadAll(r.Body)
+	err := json.Unmarshal(jsonstring, &notification)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	err = n.NotificationRepo.Create(notification)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

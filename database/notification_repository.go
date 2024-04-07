@@ -9,20 +9,21 @@ import (
 
 type NotificationRepository struct {
 	Connection *sql.DB
+	UserRepo   UserRepository
 }
 
-func NewNotificationRepository(conn *sql.DB) NotificationRepository {
-	return NotificationRepository{Connection: conn}
+func NewNotificationRepository(conn *sql.DB, u UserRepository) NotificationRepository {
+	return NotificationRepository{Connection: conn, UserRepo: u}
 }
 
 func (n NotificationRepository) ByUserId(userId int) ([]models.Notification, error) {
 	rows, err := n.Connection.Query("SELECT * FROM Notifications WHERE userID=?", userId)
-	defer rows.Close()
 	var notificationList []models.Notification
 	var notification models.Notification
 	if err != nil {
 		return notificationList, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err = rows.Scan(&notification.Id, &notification.RecipientId, &notification.Message, &notification.Read, &notification.CreatedAt)
@@ -52,6 +53,18 @@ func (n NotificationRepository) Delete(notificationID, userID int) error {
 	return nil
 }
 
-func (n NotificationRepository) Create(message string) {
+func (n NotificationRepository) Create(noti models.Notification) error {
+	userList, err := n.UserRepo.All()
+	if err != nil {
+		return err
+	}
+
+	for _, user := range userList {
+		_, err = n.Connection.Exec("INSERT INTO Notifications (userID, message) VALUES (?, ?)", user.Id, noti.Message)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 
 }

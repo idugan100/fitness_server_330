@@ -65,9 +65,19 @@ func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {
+func (a AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	//end session
 	w.Write([]byte("logout"))
+}
+
+func (a AuthController) AllUsers(w http.ResponseWriter, r *http.Request) {
+	//must be admin
+	userList, err := a.UserRepo.All()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	data, _ := json.Marshal(userList)
+	w.Write(data)
 }
 
 func SetUserMiddleware(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {

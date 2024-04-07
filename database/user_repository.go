@@ -44,6 +44,20 @@ func (u UserRepository) Signup(user models.User) (models.User, error) {
 	return inserted_user, nil
 }
 
-func (u UserRepository) All() {
+func (u UserRepository) All() ([]models.User, error) {
+	var userList []models.User
+	var user models.User
+	rows, err := u.Connection.Query("SELECT * FROM Users")
+	if err != nil {
+		return userList, err
+	}
 
+	for rows.Next() {
+		err = rows.Scan(&user.Id, &user.UserName, &user.Password, &user.IsAdmin)
+		if err != nil {
+			return userList, err
+		}
+		userList = append(userList, user)
+	}
+	return userList, nil
 }
