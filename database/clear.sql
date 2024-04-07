@@ -1,5 +1,5 @@
-DELETE FROM Users;
+DROP TABLE Users;
 
-DELETE FROM Notifications;
+DROP TABLE Notifications;
 
-DELETE FROM Activities;
+DROP TABLE Activities;

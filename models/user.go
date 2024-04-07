@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	id       int    `json:"id"`
-	userName string `json:"username" binding:"required"`
-	password string `json:"password" binding:"required"`
-	isAdmin  bool   `json:"isAdmin"`
+	Id       int    `json:"id"`
+	UserName string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	IsAdmin  bool   `json:"isAdmin"`
 }

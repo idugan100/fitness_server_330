@@ -24,13 +24,16 @@ func main() {
 	mux.HandleFunc("GET /notifications/delete/{userID}/{notificationID}", controllers.SetUserMiddleware(notification_controller.DeleteNotification))
 	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(notification_controller.CreateNotification))
 	//activity routes
+
 	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(controllers.AllActivities))
 	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(controllers.ActivityStats))
 	mux.HandleFunc("GET /activities/heatmap/{userID}", controllers.SetUserMiddleware(controllers.ActivityHeatMap))
 	mux.HandleFunc("POST /activties/{userID}", controllers.SetUserMiddleware(controllers.AddActivity))
 	//auth routes
-	mux.HandleFunc("POST /signup", controllers.Signup)
-	mux.HandleFunc("POST /login", controllers.Login)
+	user_repo := database.NewUserRepository(conn)
+	auth_controller := controllers.NewAuthController(user_repo)
+	mux.HandleFunc("POST /signup", auth_controller.Signup)
+	mux.HandleFunc("POST /login", auth_controller.Login)
 	mux.HandleFunc("GET /logout", controllers.SetUserMiddleware(controllers.Logout))
 	//all users route
 

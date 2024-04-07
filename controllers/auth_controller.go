@@ -1,18 +1,68 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+
+	"github.com/idugan100/fitness_server_330/database"
+	"github.com/idugan100/fitness_server_330/models"
 )
 
-func Signup(w http.ResponseWriter, r *http.Request) {
-	// get username, password  and create user and start session
-	w.Write([]byte("signed in"))
+type AuthController struct {
+	UserRepo database.UserRepository
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	//check if username and password are good
-	w.Write([]byte("login"))
+func NewAuthController(r database.UserRepository) AuthController {
+	return AuthController{UserRepo: r}
+}
+
+func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	bodyString, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = json.Unmarshal(bodyString, &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err = a.UserRepo.Signup(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	data, _ := json.Marshal(user)
+	w.Write(data)
+}
+
+func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
+	//read crednetials from request
+	bodyString, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//turn it into a struct
+	var user models.User
+	err = json.Unmarshal(bodyString, &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//try to log the user in and return the full user if so
+	user, err = a.UserRepo.Login(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	data, _ := json.Marshal(user)
+	w.Write(data)
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {

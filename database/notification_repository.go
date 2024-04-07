@@ -17,6 +17,7 @@ func NewNotificationRepository(conn *sql.DB) NotificationRepository {
 
 func (n NotificationRepository) ByUserId(userId int) ([]models.Notification, error) {
 	rows, err := n.Connection.Query("SELECT * FROM Notifications WHERE userID=?", userId)
+	defer rows.Close()
 	var notificationList []models.Notification
 	var notification models.Notification
 	if err != nil {
