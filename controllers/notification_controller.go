@@ -1,45 +1,65 @@
 package controllers
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/idugan100/fitness_server_330/database"
 )
 
-func AllNotifications(w http.ResponseWriter, r *http.Request) {
+type NotificationController struct {
+	NotificationRepo database.NotificationRepository
+}
+
+func CreateNotificationController(NRepo database.NotificationRepository) NotificationController {
+	return NotificationController{NotificationRepo: NRepo}
+}
+
+func (n NotificationController) AllNotifications(w http.ResponseWriter, r *http.Request) {
 
 	userIDString := r.PathValue("userID")
 	userID, _ := strconv.Atoi(userIDString)
-	res := fmt.Sprintf("all notifications for user %d", userID)
-	w.Write([]byte(res))
+	notificationList, err := n.NotificationRepo.ByUserId(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	json, err := json.Marshal(notificationList)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Write(json)
+
 }
 
-func ReadNotification(w http.ResponseWriter, r *http.Request) {
+func (n NotificationController) ReadNotification(w http.ResponseWriter, r *http.Request) {
 	userIDString := r.PathValue("userID")
 	userID, _ := strconv.Atoi(userIDString)
 
 	notificationIDString := r.PathValue("notificationID")
 	notificationID, _ := strconv.Atoi(notificationIDString)
 
-	//mark notification as read here
+	err := n.NotificationRepo.Read(notificationID, userID)
 
-	res := fmt.Sprintf("read notification %d for user %d", notificationID, userID)
-	w.Write([]byte(res))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
-func DeleteNotification(w http.ResponseWriter, r *http.Request) {
+func (n NotificationController) DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	userIDString := r.PathValue("userID")
 	userID, _ := strconv.Atoi(userIDString)
 
 	notificationIDString := r.PathValue("notificationID")
 	notificationID, _ := strconv.Atoi(notificationIDString)
 
-	//delete notification here
-	res := fmt.Sprintf("deleted notification %d for user %d", notificationID, userID)
-	w.Write([]byte(res))
+	err := n.NotificationRepo.Delete(notificationID, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
-func CreateNotification(w http.ResponseWriter, r *http.Request) {
+func (n NotificationController) CreateNotification(w http.ResponseWriter, r *http.Request) {
 	//get message from form or path
 	//insert notification for each user
 	w.Write([]byte("notification created and sent to each user"))
