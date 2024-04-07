@@ -6,7 +6,7 @@ CREATE TABLE Users(
 	`isAdmin` BOOL DEFAULT false
 );
 -- notifications table structure
-CREATE TABLE Notification(
+CREATE TABLE Notifications(
 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 	`userID` INTEGER NOT NULL,
 	`message` VARCHAR(510),
