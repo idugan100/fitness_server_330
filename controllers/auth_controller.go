@@ -5,11 +5,20 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/idugan100/fitness_server_330/database"
 	"github.com/idugan100/fitness_server_330/models"
 )
 
+var mySigningKey = []byte("AllYourBase")
+
+type JWTBody struct {
+	UserId  int  `json:"userID"`
+	IsAdmin bool `json:"isAdmin"`
+	jwt.RegisteredClaims
+}
 type AuthController struct {
 	UserRepo database.UserRepository
 }
@@ -38,9 +47,13 @@ func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	data, _ := json.Marshal(user)
+	token, err := createToken(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write(data)
+	w.Write([]byte(token))
 }
 
 func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
@@ -66,8 +79,13 @@ func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, _ := json.Marshal(user)
-	w.Write(data)
+	token, err := createToken(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(token))
 }
 
 func (a AuthController) Logout(w http.ResponseWriter, r *http.Request) {
@@ -94,4 +112,21 @@ func SetUserMiddleware(fn func(http.ResponseWriter, *http.Request)) http.Handler
 		//if user is not logged in return 403 else attatch user to requst context
 		fn(w, r)
 	}
+}
+
+func createToken(user models.User) (string, error) {
+	claims := JWTBody{
+		user.Id,
+		user.IsAdmin,
+		jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(mySigningKey)
+	return ss, err
 }

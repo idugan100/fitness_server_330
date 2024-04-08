@@ -4,10 +4,12 @@ https://medium.com/@jcox250/password-hash-salt-using-golang-b041dc94cb72 tutoria
 
 error handling on all  _ 
 
-basic tests
-
 documentation route
 
-authentication and authorization
+authentication and authorization (https://pkg.go.dev/github.com/golang-jwt/jwt/v5)
+    * jwt
+    * login returns a jwt
+    * signup returns a jwt with UserId and isAdmin
+    * middleware: require admin, require userId Match
 
 deploy
