@@ -17,10 +17,12 @@ func main() {
 	mux := http.NewServeMux()
 
 	//activity routes
-	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(controllers.AllActivities))
-	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(controllers.ActivityStats))
-	mux.HandleFunc("GET /activities/heatmap/{userID}", controllers.SetUserMiddleware(controllers.ActivityHeatMap))
-	mux.HandleFunc("POST /activties/{userID}", controllers.SetUserMiddleware(controllers.AddActivity))
+	activity_repo := database.NewActivityRepository(conn)
+	activity_controller := controllers.NewActivityController(activity_repo)
+	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(activity_controller.AllActivities))
+	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(activity_controller.ActivityStats))
+	mux.HandleFunc("POST /activties/{userID}", controllers.SetUserMiddleware(activity_controller.AddActivity)) //not done
+	mux.HandleFunc("GET /activities/stats", controllers.SetUserMiddleware(activity_controller.GroupActivityStats))
 
 	//auth routes
 	user_repo := database.NewUserRepository(conn)

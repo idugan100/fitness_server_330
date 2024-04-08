@@ -1,2 +1,14 @@
 https://pkg.go.dev/golang.org/x/crypto/bcrypt for password hashing
 https://medium.com/@jcox250/password-hash-salt-using-golang-b041dc94cb72 tutorial
+
+check that all http.Error calls then return
+
+error handling on all  _ 
+
+rows.Close on all Db.Query()
+
+basics tests
+
+documentation route
+
+standardize capitalization on sql queries
