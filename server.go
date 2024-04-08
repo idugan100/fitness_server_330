@@ -49,6 +49,7 @@ func main() {
 		fmt.Printf("error connecting to database %s", err.Error())
 		return
 	}
+	defer conn.Close()
 
 	fmt.Println("server starting ...")
 	panic(SetupServer(conn, "8080").ListenAndServe())

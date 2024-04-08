@@ -64,13 +64,13 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	connection.Exec(string(clear))
-
+	connection.Close()
 	fmt.Println("tear down complete")
 
 	os.Exit(code)
 }
 
-func TestGroupStats(t *testing.T) {
+func TestRoutes(t *testing.T) {
 	server := SetupServer(connection, "8080")
 
 	for _, test := range RequestTable {
