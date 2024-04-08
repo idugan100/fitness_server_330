@@ -68,6 +68,8 @@ func (n NotificationController) DeleteNotification(w http.ResponseWriter, r *htt
 func (n NotificationController) CreateNotification(w http.ResponseWriter, r *http.Request) {
 	var notification models.Notification
 	jsonstring, _ := io.ReadAll(r.Body)
+	defer r.Body.Close()
+
 	err := json.Unmarshal(jsonstring, &notification)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

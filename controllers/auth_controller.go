@@ -21,6 +21,8 @@ func NewAuthController(r database.UserRepository) AuthController {
 func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	bodyString, err := io.ReadAll(r.Body)
+	defer r.Body.Close()
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -44,6 +46,8 @@ func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	//read crednetials from request
 	bodyString, err := io.ReadAll(r.Body)
+	defer r.Body.Close()
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

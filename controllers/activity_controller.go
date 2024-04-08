@@ -24,6 +24,8 @@ func (a ActivityController) AddActivity(w http.ResponseWriter, r *http.Request) 
 	userID, _ := strconv.Atoi(userIDString)
 	var activity models.Activity
 	bodyString, _ := io.ReadAll(r.Body)
+	defer r.Body.Close()
+
 	json.Unmarshal(bodyString, &activity)
 	activity.UserID = userID
 	if !(activity.Intensity == "High" || activity.Intensity == "Medium" || activity.Intensity == "Low") {
