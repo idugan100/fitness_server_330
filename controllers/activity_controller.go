@@ -26,6 +26,9 @@ func (a ActivityController) AddActivity(w http.ResponseWriter, r *http.Request) 
 	bodyString, _ := io.ReadAll(r.Body)
 	json.Unmarshal(bodyString, &activity)
 	activity.UserID = userID
+	if !(activity.Intensity == "High" || activity.Intensity == "Medium" || activity.Intensity == "Low") {
+		http.Error(w, "intensity must be either High, Medium, or Low", http.StatusBadRequest)
+	}
 	err := a.ActivityRepo.Create(activity)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
