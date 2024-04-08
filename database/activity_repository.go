@@ -90,7 +90,7 @@ func (a ActivityRepository) UserStats(userId int) (models.UserStats, error) {
 	rows.Close()
 
 	//heatmap
-	rows, err = a.Connection.Query("SELECT SUM(duration), date(date) FROM Activities WHERE userID=? GROUP BY date(date)", userId)
+	rows, err = a.Connection.Query("SELECT COALESCE(SUM(duration),0), date(date) FROM Activities WHERE userID=? GROUP BY date(date)", userId)
 	if err != nil {
 		return stats, err
 	}
@@ -160,7 +160,7 @@ func (a ActivityRepository) GroupStats() (models.UserStats, error) {
 	rows.Close()
 
 	//heatmap
-	rows, err = a.Connection.Query("SELECT SUM(duration), date(date) FROM Activities GROUP BY date(date)")
+	rows, err = a.Connection.Query("SELECT COALESCE(SUM(duration),0), date(date) FROM Activities GROUP BY date(date)")
 	if err != nil {
 		return stats, err
 	}

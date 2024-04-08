@@ -46,7 +46,7 @@ func (n NotificationRepository) Read(notificationID, userID int) error {
 }
 
 func (n NotificationRepository) Delete(notificationID, userID int) error {
-	_, err := n.Connection.Exec("DELETE FROM Notifications WHERE id=? and userID=?", notificationID, userID)
+	_, err := n.Connection.Exec("DELETE FROM Notifications WHERE id=? AND userID=?", notificationID, userID)
 	if err != nil {
 		return err
 	}

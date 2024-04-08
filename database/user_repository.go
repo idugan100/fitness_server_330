@@ -16,7 +16,7 @@ func NewUserRepository(conn *sql.DB) UserRepository {
 }
 
 func (u UserRepository) Login(user models.User) (models.User, error) {
-	rows, err := u.Connection.Query("SELECT * FROM Users where username=? and password=?", user.UserName, user.Password)
+	rows, err := u.Connection.Query("SELECT * FROM Users WHERE username=? AND password=?", user.UserName, user.Password)
 	if err != nil {
 		return user, err
 	}
