@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/idugan100/fitness_server_330/controllers"
@@ -36,6 +37,10 @@ func SetupServer(conn *sql.DB, port string) *http.Server {
 	mux.HandleFunc("GET /notifications/delete/{userID}/{notificationID}", controllers.SetUserMiddleware(notification_controller.DeleteNotification))
 	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(notification_controller.CreateNotification))
 
+	//documentation
+	documentaion := template.Must(template.ParseFiles("./docs.html"))
+
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) { documentaion.Execute(w, nil) })
 	s := http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
