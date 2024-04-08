@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -8,12 +9,7 @@ import (
 	"github.com/idugan100/fitness_server_330/database"
 )
 
-func main() {
-	conn, err := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/database.db")
-	if err != nil {
-		_ = fmt.Errorf("error connecting to database %w", err)
-		return
-	}
+func SetupServer(conn *sql.DB, port string) *http.Server {
 	mux := http.NewServeMux()
 
 	//activity routes
@@ -41,10 +37,19 @@ func main() {
 	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(notification_controller.CreateNotification))
 
 	s := http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + port,
 		Handler: mux,
+	}
+	return &s
+}
+
+func main() {
+	conn, err := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/database.db")
+	if err != nil {
+		fmt.Printf("error connecting to database %s", err.Error())
+		return
 	}
 
 	fmt.Println("server starting ...")
-	panic(s.ListenAndServe())
+	panic(SetupServer(conn, "8080").ListenAndServe())
 }
