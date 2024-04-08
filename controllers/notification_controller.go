@@ -25,10 +25,12 @@ func (n NotificationController) AllNotifications(w http.ResponseWriter, r *http.
 	notificationList, err := n.NotificationRepo.ByUserId(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	json, err := json.Marshal(notificationList)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.Write(json)
 
@@ -45,6 +47,7 @@ func (n NotificationController) ReadNotification(w http.ResponseWriter, r *http.
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -58,6 +61,7 @@ func (n NotificationController) DeleteNotification(w http.ResponseWriter, r *htt
 	err := n.NotificationRepo.Delete(notificationID, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -67,10 +71,12 @@ func (n NotificationController) CreateNotification(w http.ResponseWriter, r *htt
 	err := json.Unmarshal(jsonstring, &notification)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	err = n.NotificationRepo.Create(notification)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusCreated)
 }

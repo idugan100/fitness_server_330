@@ -28,10 +28,12 @@ func (a ActivityController) AddActivity(w http.ResponseWriter, r *http.Request) 
 	activity.UserID = userID
 	if !(activity.Intensity == "High" || activity.Intensity == "Medium" || activity.Intensity == "Low") {
 		http.Error(w, "intensity must be either High, Medium, or Low", http.StatusBadRequest)
+		return
 	}
 	err := a.ActivityRepo.Create(activity)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusCreated)
 }
@@ -57,6 +59,7 @@ func (a ActivityController) ActivityStats(w http.ResponseWriter, r *http.Request
 	stats, err := a.ActivityRepo.UserStats(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	data, _ := json.Marshal(&stats)
 	w.Write(data)
@@ -68,6 +71,7 @@ func (a ActivityController) GroupActivityStats(w http.ResponseWriter, r *http.Re
 	stats, err := a.ActivityRepo.GroupStats()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	data, _ := json.Marshal(&stats)
 	w.Write(data)

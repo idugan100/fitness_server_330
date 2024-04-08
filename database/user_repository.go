@@ -51,6 +51,7 @@ func (u UserRepository) All() ([]models.User, error) {
 	if err != nil {
 		return userList, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err = rows.Scan(&user.Id, &user.UserName, &user.Password, &user.IsAdmin)

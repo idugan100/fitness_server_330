@@ -76,6 +76,7 @@ func (a AuthController) AllUsers(w http.ResponseWriter, r *http.Request) {
 	userList, err := a.UserRepo.All()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	data, _ := json.Marshal(userList)
 	w.Write(data)

@@ -102,6 +102,7 @@ func (a ActivityRepository) UserStats(userId int) (models.UserStats, error) {
 		}
 		stats.Days = append(stats.Days, daily)
 	}
+	rows.Close()
 	return stats, nil
 }
 
@@ -171,6 +172,7 @@ func (a ActivityRepository) GroupStats() (models.UserStats, error) {
 		}
 		stats.Days = append(stats.Days, daily)
 	}
+	rows.Close()
 	return stats, nil
 }
 
