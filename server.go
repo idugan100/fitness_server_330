@@ -13,29 +13,28 @@ import (
 func SetupServer(conn *sql.DB, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	//activity routes
-	activity_repo := database.NewActivityRepository(conn)
-	activity_controller := controllers.NewActivityController(activity_repo)
-	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(activity_controller.AllActivities))
-	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(activity_controller.ActivityStats))
-	mux.HandleFunc("POST /activities/{userID}", controllers.SetUserMiddleware(activity_controller.AddActivity))
-	mux.HandleFunc("GET /activities/stats/all", controllers.SetUserMiddleware(activity_controller.GroupActivityStats))
-
 	//auth routes
 	user_repo := database.NewUserRepository(conn)
 	auth_controller := controllers.NewAuthController(user_repo)
 	mux.HandleFunc("POST /signup", auth_controller.Signup)
 	mux.HandleFunc("POST /login", auth_controller.Login)
-	mux.HandleFunc("GET /logout", controllers.SetUserMiddleware(auth_controller.Logout))
-	mux.HandleFunc("GET /allusers", controllers.SetUserMiddleware(auth_controller.AllUsers))
+	mux.HandleFunc("GET /allusers", controllers.SetUserMiddleware(controllers.RequireAdmin(auth_controller.AllUsers)))
+
+	//activity routes
+	activity_repo := database.NewActivityRepository(conn)
+	activity_controller := controllers.NewActivityController(activity_repo)
+	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(controllers.CheckPermission(activity_controller.AllActivities)))
+	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(controllers.CheckPermission(activity_controller.ActivityStats)))
+	mux.HandleFunc("POST /activities/{userID}", controllers.SetUserMiddleware(controllers.CheckPermission(activity_controller.AddActivity)))
+	mux.HandleFunc("GET /activities/stats/all", controllers.SetUserMiddleware(controllers.RequireAdmin(activity_controller.GroupActivityStats)))
 
 	// notification routes
 	notification_repo := database.NewNotificationRepository(conn, user_repo)
 	notification_controller := controllers.CreateNotificationController(notification_repo)
-	mux.HandleFunc("GET /notifications/{userID}", controllers.SetUserMiddleware(notification_controller.AllNotifications))
-	mux.HandleFunc("GET /notifications/read/{userID}/{notificationID}", controllers.SetUserMiddleware(notification_controller.ReadNotification))
-	mux.HandleFunc("GET /notifications/delete/{userID}/{notificationID}", controllers.SetUserMiddleware(notification_controller.DeleteNotification))
-	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(notification_controller.CreateNotification))
+	mux.HandleFunc("GET /notifications/{userID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.AllNotifications)))
+	mux.HandleFunc("GET /notifications/read/{userID}/{notificationID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.ReadNotification)))
+	mux.HandleFunc("GET /notifications/delete/{userID}/{notificationID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.DeleteNotification)))
+	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(controllers.RequireAdmin(notification_controller.CreateNotification)))
 
 	//documentation
 	documentaion := template.Must(template.ParseFiles("./docs.html"))

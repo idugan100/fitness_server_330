@@ -10,7 +10,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/idugan100/fitness_server_330/controllers"
 	"github.com/idugan100/fitness_server_330/database"
+	"github.com/idugan100/fitness_server_330/models"
 )
 
 var connection *sql.DB
@@ -31,7 +33,6 @@ var RequestTable = []RequestTest{
 
 	//users
 	{Method: "GET", Path: "/allusers", Body: nil, Code: http.StatusOK},
-	{Method: "GET", Path: "/logout", Body: nil, Code: http.StatusOK},
 	//successful login
 	{Method: "POST", Path: "/login", Body: strings.NewReader("{\"username\":\"tom\",\"password\":\"123\"}"), Code: http.StatusOK},
 	//incorrect password
@@ -74,10 +75,16 @@ func TestMain(m *testing.M) {
 }
 
 func TestRoutes(t *testing.T) {
+	//get an admin token
 	server := SetupServer(connection, "8080")
+	token, err := controllers.CreateToken(models.User{Id: 1, IsAdmin: true})
+	if err != nil {
+		t.Errorf("unexpected error when creating admin token %s", err.Error())
+	}
 
 	for _, test := range RequestTable {
 		r := httptest.NewRequest(test.Method, test.Path, test.Body)
+		r.Header.Add("Authorization", "Bearer "+token)
 		w := httptest.NewRecorder()
 
 		server.Handler.ServeHTTP(w, r)

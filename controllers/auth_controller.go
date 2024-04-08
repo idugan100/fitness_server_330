@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -47,7 +49,7 @@ func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	token, err := createToken(user)
+	token, err := CreateToken(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -79,18 +81,13 @@ func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := createToken(user)
+	token, err := CreateToken(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Write([]byte(token))
-}
-
-func (a AuthController) Logout(w http.ResponseWriter, r *http.Request) {
-	//end session
-	w.Write([]byte("logout"))
 }
 
 func (a AuthController) AllUsers(w http.ResponseWriter, r *http.Request) {
@@ -108,13 +105,52 @@ func SetUserMiddleware(fn func(http.ResponseWriter, *http.Request)) http.Handler
 	// sets the user in the request context
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		fmt.Println("setting user context")
-		//if user is not logged in return 403 else attatch user to requst context
+		auth_header := r.Header.Get("Authorization")
+		if !strings.HasPrefix(auth_header, "Bearer ") {
+			http.Error(w, "invalid authorization header format", http.StatusBadRequest)
+			return
+		}
+
+		user, err := ParseToken(strings.TrimPrefix(auth_header, "Bearer "))
+		if !strings.HasPrefix(auth_header, "Bearer ") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		ctx := r.Context()
+		new_ctx := context.WithValue(ctx, "user", user)
+		new_r := r.WithContext(new_ctx)
+		fn(w, new_r)
+	}
+}
+
+func RequireAdmin(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value("user").(models.User)
+		if !user.IsAdmin {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 		fn(w, r)
 	}
 }
 
-func createToken(user models.User) (string, error) {
+func CheckPermission(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value("user").(models.User)
+		id, _ := strconv.Atoi(r.PathValue("userID"))
+		if user.IsAdmin {
+			fn(w, r)
+
+		} else if user.Id != id {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		} else {
+			fn(w, r)
+		}
+	}
+}
+
+func CreateToken(user models.User) (string, error) {
 	claims := JWTBody{
 		user.Id,
 		user.IsAdmin,
@@ -129,4 +165,19 @@ func createToken(user models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(mySigningKey)
 	return ss, err
+}
+
+func ParseToken(token string) (models.User, error) {
+	var user models.User
+	t, err := jwt.ParseWithClaims(token, &JWTBody{}, func(token *jwt.Token) (interface{}, error) {
+		return mySigningKey, nil
+	})
+
+	if err != nil {
+		return user, err
+	}
+	user.IsAdmin = t.Claims.(*JWTBody).IsAdmin
+	user.Id = t.Claims.(*JWTBody).UserId
+
+	return user, nil
 }
