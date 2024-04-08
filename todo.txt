@@ -12,3 +12,5 @@ basics tests
 documentation route
 
 standardize capitalization on sql queries
+ 
+deploy

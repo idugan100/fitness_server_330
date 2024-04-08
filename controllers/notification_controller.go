@@ -72,4 +72,5 @@ func (n NotificationController) CreateNotification(w http.ResponseWriter, r *htt
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	w.WriteHeader(http.StatusCreated)
 }

@@ -37,6 +37,7 @@ func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data, _ := json.Marshal(user)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(data)
 }
 

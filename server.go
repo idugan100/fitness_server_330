@@ -21,8 +21,8 @@ func main() {
 	activity_controller := controllers.NewActivityController(activity_repo)
 	mux.HandleFunc("GET /activities/{userID}", controllers.SetUserMiddleware(activity_controller.AllActivities))
 	mux.HandleFunc("GET /activities/stats/{userID}", controllers.SetUserMiddleware(activity_controller.ActivityStats))
-	mux.HandleFunc("POST /activties/{userID}", controllers.SetUserMiddleware(activity_controller.AddActivity)) //not done
-	mux.HandleFunc("GET /activities/stats", controllers.SetUserMiddleware(activity_controller.GroupActivityStats))
+	mux.HandleFunc("POST /activities/{userID}", controllers.SetUserMiddleware(activity_controller.AddActivity)) //not done
+	mux.HandleFunc("GET /activities/stats/all", controllers.SetUserMiddleware(activity_controller.GroupActivityStats))
 
 	//auth routes
 	user_repo := database.NewUserRepository(conn)

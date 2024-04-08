@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/idugan100/fitness_server_330/database"
+	"github.com/idugan100/fitness_server_330/models"
 )
 
 type ActivityController struct {
@@ -21,8 +22,15 @@ func (a ActivityController) AddActivity(w http.ResponseWriter, r *http.Request) 
 	//add an activity for a user
 	userIDString := r.PathValue("userID")
 	userID, _ := strconv.Atoi(userIDString)
-	res := fmt.Sprintf("added an activity for user %d", userID)
-	w.Write([]byte(res))
+	var activity models.Activity
+	bodyString, _ := io.ReadAll(r.Body)
+	json.Unmarshal(bodyString, &activity)
+	activity.UserID = userID
+	err := a.ActivityRepo.Create(activity)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (a ActivityController) AllActivities(w http.ResponseWriter, r *http.Request) {
