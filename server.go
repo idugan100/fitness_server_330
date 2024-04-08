@@ -39,7 +39,7 @@ func SetupServer(conn *sql.DB, port string) *http.Server {
 	//documentation
 	documentaion := template.Must(template.ParseFiles("./docs.html"))
 
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) { documentaion.Execute(w, nil) })
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) { documentaion.Execute(w, nil) })
 	s := http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
