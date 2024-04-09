@@ -1,1 +1,212 @@
-<h1>Documentation</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table, th, td {
+            border: 1px solid;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Documentation</h1>
+<p>This documentation is for the backend for the COSC-330 Project 2. The github repo for this can be found <a href="https://github.com/idugan100/fitness_server_330">here</a>.</p>
+
+<h2>Authentication and Users</h2>
+<table>
+    <thead>
+        <th>method</th>
+        <th>path</th>
+        <th>body</th>
+        <th>required permissions</th>
+        <th>response</th>
+        <th>notes</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>POST</td>
+            <td>/login</td>
+            <td>{"username":"value","password":123}</td>
+            <td>none</td>
+            <td>a <a href="https://jwt.io/introduction">jwt token</a> that is a base64 encoded string with user id and admin status encoded</td>
+            <td>once token is recieved it should be set in the Authorization header with format "Bearer TOKEN_HERE" for all subsequent requests</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/signup</td>
+            <td>{"username":"value","password":123}</td>
+            <td>none</td>
+            <td>a <a href="https://jwt.io/introduction">jwt token</a> that is a base64 encoded string with user id and admin status encoded</td>
+            <td>will not allow duplicate usernames</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/allusers</td>
+            <td>none</td>
+            <td>must be an admin user</td>
+            <td>[
+                {
+                    "id": 1,
+                    "username": "tom",
+                    "password": "123",
+                    "isAdmin": false
+                },
+                {
+                    "id": 2,
+                    "username": "sally",
+                    "password": "123",
+                    "isAdmin": false
+                }]</td>
+            <td>none</td>
+        </tr>
+    </tbody>
+</table>
+<h2>Activities</h2>
+<table>
+<thead>
+    <th>method</th>
+    <th>path</th>
+    <th>body</th>
+    <th>required permissions</th>
+    <th>response</th>
+    <th>notes</th>
+</thead>
+<tbody>
+    <tr>
+        <td>GET</td>
+        <td>/activities/{userID}</td>
+        <td>none</td>
+        <td>must either be that user or a admin</td>
+        <td>[
+            {
+                "name": "Lifting",
+                "id": 3,
+                "userID": 2,
+                "intensity": "Medium",
+                "duration": 20,
+                "date": "2024-04-07T00:00:00Z"
+            },
+            {
+                "name": "Hiking",
+                "id": 4,
+                "userID": 2,
+                "intensity": "Low",
+                "duration": 20,
+                "date": "2024-04-07T00:00:00Z"
+            }
+        ]</td>
+        <td>none</td>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/activities/stats/{userID}</td>
+        <td>none</td>
+        <td>must that user or an admin</td>
+        <td>{
+            "totalDays": 1,
+            "totalHigh": 0,
+            "totalMedium": 20,
+            "totalLow": 20,
+            "dailyTotals": [
+                {
+                    "date": "2024-04-07",
+                    "totalMinutes": 40
+                }
+            ]
+        }</td>
+        <td>none</td>
+    </tr>
+    <tr>
+        <td>GET</td>
+        <td>/activities/stats/all</td>
+        <td>none</td>
+        <td>must be an admin</td>
+        <td>{
+            "totalDays": 1,
+            "totalHigh": 100,
+            "totalMedium": 60,
+            "totalLow": 20,
+            "dailyTotals": [
+                {
+                    "date": "2024-04-07",
+                    "totalMinutes": 180
+                }
+            ]
+        }</td>
+        <td>these are the stats when calculated for all users</td>
+    </tr>
+    <tr>
+        <td>POST</td>
+        <td>/activities/{userID}</td>
+        <td>{"name": "Running","intensity": "Medium","duration": 20,"date": "2024-04-07T00:00:00Z"}</td>
+        <td>must be that user or an admin</td>
+        <td>none</td>
+        <td>Intensity must be High, Medium, or Low and is case senstive. The date must be a string in <a href="https://www.iso.org/iso-8601-date-and-time-format.html">ISO 8601 format</a></td>
+    </tr>
+</tbody>
+</table>
+<h2>Notifications</h2>
+<table>
+    <thead>
+        <th>method</th>
+        <th>path</th>
+        <th>body</th>
+        <th>required permissions</th>
+        <th>response</th>
+        <th>notes</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>GET</td>
+            <td>/notifications/{userID}</td>
+            <td>none</td>
+            <td>must be that user or an admin</td>
+            <td>[
+                {
+                    "id": 1,
+                    "recipientID": 1,
+                    "message": "welcome to the app",
+                    "read": false,
+                    "createdAt": "2024-04-07T00:00:00Z"
+                },
+                {
+                    "id": 4,
+                    "recipientID": 1,
+                    "message": "remember to workout today!",
+                    "read": true,
+                    "createdAt": "2024-04-07T00:00:00Z"
+                }]</td>
+            <td>none</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/notifications/read/{userID}/{notificationID}</td>
+            <td>none</td>
+            <td>must be that user or an admin</td>
+            <td>none</td>
+            <td>none</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/notifications/delete/{userID}/{notificationID}</td>
+            <td>none</td>
+            <td>must be that user or an admin</td>
+            <td>none</td>
+            <td>there is no way to recover a notification once it has been deleted</td>
+        </tr>
+        <tr>
+            <td>POST </td>
+            <td>/notifications</td>
+            <td>{"message":"this is a test notification"}</td>
+            <td>must be an admin</td>
+            <td>none</td>
+            <td>this route creates an entry in the Notifications table with this message for each user so they can read/delete them individually</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
