@@ -3,11 +3,11 @@ package database
 import (
 	"database/sql"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func Connect(path string) (*sql.DB, error) {
-	conn, err := sql.Open("sqlite3", ("file:" + path))
+	conn, err := sql.Open("sqlite", ("file:" + path))
 	if err != nil {
 		return nil, err
 	}
