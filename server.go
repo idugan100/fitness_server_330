@@ -34,7 +34,7 @@ func SetupServer(conn *sql.DB, port string) *http.Server {
 	mux.HandleFunc("GET /notifications/{userID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.AllNotifications)))
 	mux.HandleFunc("GET /notifications/read/{userID}/{notificationID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.ReadNotification)))
 	mux.HandleFunc("GET /notifications/delete/{userID}/{notificationID}", controllers.SetUserMiddleware(controllers.CheckPermission(notification_controller.DeleteNotification)))
-	mux.HandleFunc("POST /notifications/create", controllers.SetUserMiddleware(controllers.RequireAdmin(notification_controller.CreateNotification)))
+	mux.HandleFunc("POST /notifications", controllers.SetUserMiddleware(controllers.RequireAdmin(notification_controller.CreateNotification)))
 
 	//documentation
 	documentaion := template.Must(template.ParseFiles("./docs.html"))

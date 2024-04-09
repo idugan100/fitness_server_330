@@ -46,7 +46,7 @@ var RequestTable = []RequestTest{
 	{Method: "GET", Path: "/notifications/1", Body: nil, Code: http.StatusOK},
 	{Method: "GET", Path: "/notifications/read/1/1", Body: nil, Code: http.StatusOK},
 	{Method: "GET", Path: "/notifications/delete/2/2", Body: nil, Code: http.StatusOK},
-	{Method: "POST", Path: "/notifications/create", Body: strings.NewReader("{\"message\":\"this is a test message\"}"), Code: http.StatusCreated},
+	{Method: "POST", Path: "/notifications", Body: strings.NewReader("{\"message\":\"this is a test message\"}"), Code: http.StatusCreated},
 
 	//documentation
 	{Method: "GET", Path: "/", Body: nil, Code: http.StatusOK},
