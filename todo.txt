@@ -4,7 +4,3 @@ https://medium.com/@jcox250/password-hash-salt-using-golang-b041dc94cb72 tutoria
 
 error handling on all  _ 
 
-documentation route
-
-deploy
-
