@@ -12,13 +12,13 @@ import (
 	"github.com/idugan100/fitness_server_330/database"
 )
 
-var controller NotificationController
+var n_controller NotificationController
 
 func TestMain(m *testing.M) {
 	connection, _ := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/test.db")
 	user_repo := database.NewUserRepository(connection)
 	notification_repo := database.NewNotificationRepository(connection, user_repo)
-	controller = CreateNotificationController(notification_repo)
+	n_controller = CreateNotificationController(notification_repo)
 
 	clear, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/clear.sql")
 	schema, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/schema.sql")
@@ -40,10 +40,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestAllNotifications(t *testing.T) {
-	r := httptest.NewRequest("GET", "/notifications/", nil)
+	r := httptest.NewRequest(http.MethodGet, "/notifications/", nil)
 	r.SetPathValue("userID", "2")
 	w := httptest.NewRecorder()
-	controller.AllNotifications(w, r)
+	n_controller.AllNotifications(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("unexpected status code. Expected %d. Recieved %d.", http.StatusOK, w.Code)
@@ -57,5 +57,36 @@ func TestAllNotifications(t *testing.T) {
 
 	if !strings.Contains(string(responseString), "welcome to the app") || !strings.Contains(string(responseString), "remember to workout today!") {
 		t.Errorf("json response does not contain expected output. Output: %s", responseString)
+	}
+}
+
+func TestCreateValidNotification(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/notifications", strings.NewReader("{\"message\":\"test notification\"}"))
+	w := httptest.NewRecorder()
+
+	n_controller.CreateNotification(w, r)
+	if w.Code != http.StatusCreated {
+		t.Errorf("unexpected response code. Expected: %d Recieved: %d", http.StatusCreated, w.Code)
+	}
+
+}
+
+func TestCreateInValidNotification(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/notifications", strings.NewReader("{\"text\":\"test notification\"}"))
+	w := httptest.NewRecorder()
+
+	n_controller.CreateNotification(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("unexpected response code. Expected: %d Recieved: %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestCreateInValidJSONNotification(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/notifications", strings.NewReader("{text\":\"test notification\"}"))
+	w := httptest.NewRecorder()
+
+	n_controller.CreateNotification(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("unexpected response code. Expected: %d Recieved: %d", http.StatusBadRequest, w.Code)
 	}
 }

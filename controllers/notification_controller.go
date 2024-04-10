@@ -75,7 +75,14 @@ func (n NotificationController) CreateNotification(w http.ResponseWriter, r *htt
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	if notification.Message == "" {
+		http.Error(w, "missing message parameter", http.StatusBadRequest)
+		return
+	}
+
 	err = n.NotificationRepo.Create(notification)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
