@@ -11,11 +11,15 @@ import (
 )
 
 var connection *sql.DB
-var repo ActivityRepository
+var activity_repo ActivityRepository
+var notification_repo NotificationRepository
+var user_repo UserRepository
 
 func TestMain(m *testing.M) {
 	connection, _ = Connect("/Users/isaacdugan/code/fitness_server_330/database/test.db")
-	repo = NewActivityRepository(connection)
+	activity_repo = NewActivityRepository(connection)
+	user_repo = NewUserRepository(connection)
+	notification_repo = NewNotificationRepository(connection, user_repo)
 
 	clear, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/clear.sql")
 	schema, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/schema.sql")
@@ -36,8 +40,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestAllByUserId(t *testing.T) {
-	modelList, err := repo.AllByUserId(1)
+func TestActivitiesByUserId(t *testing.T) {
+	modelList, err := activity_repo.AllByUserId(1)
 
 	if err != nil {
 		t.Errorf("unexpected error %s", err.Error())
@@ -61,7 +65,7 @@ func TestAllByUserId(t *testing.T) {
 }
 
 func TestGroupStats(t *testing.T) {
-	stats, err := repo.GroupStats()
+	stats, err := activity_repo.GroupStats()
 
 	if err != nil {
 		t.Errorf("unexpected error %s", err.Error())
@@ -81,7 +85,7 @@ func TestGroupStats(t *testing.T) {
 }
 
 func TestUserStats(t *testing.T) {
-	stats, err := repo.UserStats(2)
+	stats, err := activity_repo.UserStats(2)
 
 	if err != nil {
 		t.Errorf("unexpected error %s", err.Error())
@@ -103,12 +107,12 @@ func TestUserStats(t *testing.T) {
 func TestCreateActivity(t *testing.T) {
 
 	a := models.Activity{Name: "Boxing", Intensity: "High", Duration: 40, Date: time.Now(), UserID: 3}
-	err := repo.Create(a)
+	err := activity_repo.Create(a)
 	if err != nil {
 		t.Errorf("unexpected error %s", err.Error())
 	}
 
-	activityList, err := repo.AllByUserId(3)
+	activityList, err := activity_repo.AllByUserId(3)
 	if err != nil {
 		t.Errorf("unexpected error %s", err.Error())
 	}
