@@ -194,3 +194,48 @@ func TestValidSignUp(t *testing.T) {
 		t.Errorf("not token returned")
 	}
 }
+
+func TestLoginWithInValidCredentials(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/signup", strings.NewReader("{\"username\":\"tom\",\"password\":\"12\"}"))
+	w := httptest.NewRecorder()
+	auth_controller.Login(w, r)
+	if w.Code == http.StatusOK {
+		t.Errorf("user was logged in with invalid credentials")
+	}
+}
+func TestLoginWithInValidJSON(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/signup", strings.NewReader("\"username\":\"tom\",\"password\":\"12\"}"))
+	w := httptest.NewRecorder()
+	auth_controller.Login(w, r)
+	if w.Code == http.StatusOK {
+		t.Errorf("user was logged in with invalid credentials")
+	}
+}
+
+func TestLoginWithInValidBody(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/signup", strings.NewReader("{\"password\":\"12\"}"))
+	w := httptest.NewRecorder()
+	auth_controller.Login(w, r)
+	if w.Code == http.StatusOK {
+		t.Errorf("user was logged in with invalid credentials")
+	}
+}
+
+func TestLoginWithValidCredentials(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/signup", strings.NewReader("{\"username\":\"tom\",\"password\":\"123\"}"))
+	w := httptest.NewRecorder()
+	auth_controller.Login(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("unexpected status code after successful login. Expected: %d Recieved: %d", http.StatusOK, w.Code)
+	}
+
+	token, err := io.ReadAll(w.Result().Body)
+
+	if err != nil {
+		t.Errorf("unexpected error parsing data from signup token: %s", err.Error())
+	}
+	if string(token) == "" {
+		t.Errorf("not token returned")
+	}
+}
