@@ -44,6 +44,11 @@ func (a AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.UserName == "" || user.Password == "" {
+		http.Error(w, "must have username and password values", http.StatusBadRequest)
+		return
+	}
+
 	user, err = a.UserRepo.Signup(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

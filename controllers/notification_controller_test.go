@@ -13,10 +13,13 @@ import (
 )
 
 var n_controller NotificationController
+var auth_controller AuthController
+var user_repo database.UserRepository
 
 func TestMain(m *testing.M) {
 	connection, _ := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/test.db")
-	user_repo := database.NewUserRepository(connection)
+	user_repo = database.NewUserRepository(connection)
+	auth_controller = NewAuthController(user_repo)
 	notification_repo := database.NewNotificationRepository(connection, user_repo)
 	n_controller = CreateNotificationController(notification_repo)
 
