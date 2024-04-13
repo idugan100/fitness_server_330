@@ -79,6 +79,11 @@ func (a AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	if user.UserName == "" || user.Password == "" {
+		http.Error(w, "must have username and password values", http.StatusBadRequest)
+		return
+	}
 	//try to log the user in and return the full user if so
 	user, err = a.UserRepo.Login(user)
 	if err != nil {
