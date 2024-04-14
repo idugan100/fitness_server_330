@@ -43,7 +43,11 @@ func (a ActivityController) AddActivity(w http.ResponseWriter, r *http.Request) 
 func (a ActivityController) AllActivities(w http.ResponseWriter, r *http.Request) {
 	//get activity list for a user
 	userIDString := r.PathValue("userID")
-	userID, _ := strconv.Atoi(userIDString)
+	userID, err := strconv.Atoi(userIDString)
+	if err != nil {
+		http.Error(w, "invalid user id", http.StatusBadRequest)
+		return
+	}
 	activityList, err := a.ActivityRepo.AllByUserId(userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
