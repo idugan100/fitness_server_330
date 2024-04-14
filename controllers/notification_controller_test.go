@@ -16,6 +16,7 @@ var n_controller NotificationController
 var auth_controller AuthController
 var user_repo database.UserRepository
 var notification_repo database.NotificationRepository
+var activity_controller ActivityController
 
 func TestMain(m *testing.M) {
 	connection, _ := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/test.db")
@@ -23,6 +24,8 @@ func TestMain(m *testing.M) {
 	auth_controller = NewAuthController(user_repo)
 	notification_repo = database.NewNotificationRepository(connection, user_repo)
 	n_controller = CreateNotificationController(notification_repo)
+	activity_repo := database.NewActivityRepository(connection)
+	activity_controller = NewActivityController(activity_repo)
 
 	clear, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/clear.sql")
 	schema, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/schema.sql")
