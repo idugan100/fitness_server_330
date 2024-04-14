@@ -15,12 +15,13 @@ import (
 var n_controller NotificationController
 var auth_controller AuthController
 var user_repo database.UserRepository
+var notification_repo database.NotificationRepository
 
 func TestMain(m *testing.M) {
 	connection, _ := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/test.db")
 	user_repo = database.NewUserRepository(connection)
 	auth_controller = NewAuthController(user_repo)
-	notification_repo := database.NewNotificationRepository(connection, user_repo)
+	notification_repo = database.NewNotificationRepository(connection, user_repo)
 	n_controller = CreateNotificationController(notification_repo)
 
 	clear, _ := os.ReadFile("/Users/isaacdugan/code/fitness_server_330/database/clear.sql")
@@ -91,5 +92,51 @@ func TestCreateInValidJSONNotification(t *testing.T) {
 	n_controller.CreateNotification(w, r)
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("unexpected response code. Expected: %d Recieved: %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestUnReadReadNotification(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/notifications/read", nil)
+	r.SetPathValue("userID", "1")
+	r.SetPathValue("notificationID", "1")
+	w := httptest.NewRecorder()
+	n_controller.ReadNotification(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("unexpected status code. Expected: %d Recieved: %d", http.StatusOK, w.Code)
+	}
+
+	notifications, err := notification_repo.ByUserId(1)
+
+	if err != nil {
+		t.Errorf("unexpected error  quering notifications: %s", err.Error())
+	}
+
+	for _, n := range notifications {
+		if n.Id == 1 && n.Read == false {
+			t.Errorf("notification not marked read in database")
+		}
+	}
+}
+
+func TestDeleteNotification(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/notifications/delete", nil)
+	r.SetPathValue("userID", "1")
+	r.SetPathValue("notificationID", "1")
+	w := httptest.NewRecorder()
+	n_controller.DeleteNotification(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("unexpected status code. Expected: %d Recieved: %d", http.StatusOK, w.Code)
+	}
+
+	notifications, err := notification_repo.ByUserId(1)
+
+	if err != nil {
+		t.Errorf("unexpected error  quering notifications: %s", err.Error())
+	}
+
+	if len(notifications) != 2 {
+		t.Errorf("unexpected number of notifications for user. Expected %d Revieved %d", 2, len(notifications))
 	}
 }
