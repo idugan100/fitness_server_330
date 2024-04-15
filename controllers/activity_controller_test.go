@@ -45,3 +45,13 @@ func TestGetAllActivities(t *testing.T) {
 	}
 
 }
+
+func TestAddActivityInvalidIntensity(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/activities", strings.NewReader("{\"name\": \"Running\",\"intensity\": \"super high\",\"duration\": 20,\"date\": \"2024-04-07T00:00:00Z\"}"))
+	r.SetPathValue("userID", "1")
+	w := httptest.NewRecorder()
+	activity_controller.AddActivity(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("unexpected repsonse code. Expected %d Recieved %d", http.StatusBadRequest, w.Code)
+	}
+}
