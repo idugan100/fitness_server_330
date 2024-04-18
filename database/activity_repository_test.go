@@ -51,15 +51,15 @@ func TestActivitiesByUserId(t *testing.T) {
 		t.Errorf("unexpected number of results. Expected 2 found %d", len(modelList))
 	}
 
-	if modelList[0].Intensity != "Medium" || modelList[1].Intensity != "High" {
+	if modelList[1].Intensity != "Medium" || modelList[0].Intensity != "High" {
 		t.Errorf("unexpected intensity results")
 	}
 
-	if modelList[0].Duration != 20 || modelList[1].Duration != 20 {
+	if modelList[1].Duration != 20 || modelList[0].Duration != 20 {
 		t.Errorf("unexpected duration results")
 	}
 
-	if modelList[0].Name != "Running" || modelList[1].Name != "Swimming" {
+	if modelList[1].Name != "Running" || modelList[0].Name != "Swimming" {
 		t.Errorf("unexpected duration results")
 	}
 }

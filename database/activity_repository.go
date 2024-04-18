@@ -19,7 +19,7 @@ func (a ActivityRepository) AllByUserId(userId int) ([]models.Activity, error) {
 	var activityList []models.Activity
 	var activity models.Activity
 
-	rows, err := a.Connection.Query("SELECT * FROM Activities WHERE userID=?", userId)
+	rows, err := a.Connection.Query("SELECT * FROM Activities WHERE userID=? ORDER BY id DESC", userId)
 	if err != nil {
 		return activityList, err
 	}
