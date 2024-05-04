@@ -48,7 +48,7 @@ func SetupServer(conn *sql.DB, port string) *http.Server {
 }
 
 func main() {
-	conn, err := database.Connect("/Users/isaacdugan/code/fitness_server_330/database/database.db")
+	conn, err := database.Connect("/home/ubuntu/fitness_server_330/database/database.db")
 	if err != nil {
 		fmt.Printf("error connecting to database %s", err.Error())
 		return
