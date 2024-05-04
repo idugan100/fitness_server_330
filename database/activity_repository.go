@@ -177,7 +177,7 @@ func (a ActivityRepository) GroupStats() (models.UserStats, error) {
 }
 
 func (a ActivityRepository) Create(act models.Activity) error {
-	_, err := a.Connection.Exec("INSERT INTO Activities (name, userId,duration,intensity, date) VALUES (?,?,?,?,?)", act.Name, act.UserID, act.Duration, act.Intensity, act.Date)
+	_, err := a.Connection.Exec("INSERT INTO Activities (name, userId,duration,intensity, date) VALUES (?,?,?,?,?)", act.Name, act.UserID, act.Duration, act.Intensity, act.Date.Format("2006-01-02"))
 	if err != nil {
 		return err
 	}
