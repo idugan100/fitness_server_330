@@ -17,7 +17,7 @@ func NewNotificationRepository(conn *sql.DB, u UserRepository) NotificationRepos
 }
 
 func (n NotificationRepository) ByUserId(userId int) ([]models.Notification, error) {
-	rows, err := n.Connection.Query("SELECT * FROM Notifications WHERE userID=?", userId)
+	rows, err := n.Connection.Query("SELECT * FROM Notifications WHERE userID=? ORDER BY id DESC", userId)
 	var notificationList []models.Notification
 	var notification models.Notification
 	if err != nil {

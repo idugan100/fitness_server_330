@@ -16,7 +16,7 @@ func TestNotificationsByUserId(t *testing.T) {
 	}
 
 	expected_message := []string{
-		"welcome to the app", "remember to workout today!",
+		"remember to workout today!", "welcome to the app",
 	}
 	for i, notificaton := range res {
 		if notificaton.Message != expected_message[i] {
